@@ -1,3 +1,14 @@
+# PSDC-Phase2-Ephipany
+
+Submission for Phase 2 of the 2024 Pediatric Sepsis Data Challenge. 
+
+## Team Members
+ - Jon Cyrus
+ - Munaf Noorani
+ - Mike Poplawski
+ 
+
+
 # Phase 2 Submission
 
 ### This is the Phase 2 example submission. In this phase, we have made few improvements and updates over the previous submission. These changes enhance reproducibility, consistency, and robustness of our evaluation. 
