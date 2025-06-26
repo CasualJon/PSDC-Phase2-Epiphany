@@ -1,0 +1,33 @@
+# GitIgnore - Jon Cyrus
+
+### Internal project files and directories ###
+*.pyc
+__pycache__/
+*.tfevents
+scripts/
+catboost_info/
+project_files/
+psenv/
+
+### Linux ###
+*~
+
+### macOS ###
+.DS_Store
+
+### VisualStudioCode ###
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+
+### VisualStudioCode Patch ###
+# Ignore all local history of files
+.history
+
+
+### PyEnv Local Data ###
+.python-version
+.local

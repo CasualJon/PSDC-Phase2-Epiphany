@@ -1,0 +1,3 @@
+Jon Cyrus <jon@joncyrus.com> (Author, Maintainer, Code Reveiw)
+Munaf Noorani <munaf.p.n@gmail.com> (Design, Developer, Code Review)
+Mike Poplawski <michael.s.poplawski@gmail.com> (Ideas)
