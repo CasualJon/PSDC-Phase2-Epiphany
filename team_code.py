@@ -27,7 +27,7 @@ from joblib import dump, load
 
 
 ##################################################################################################################################
-# def __load_challenge_data(data_folder():
+# def __load_challenge_data():
 # Override to exclude the disallowed features
 def __load_challenge_data(data_folder):
     data = pd.read_csv(data_folder)
@@ -60,32 +60,46 @@ def train_challenge_model(data_folder, model_folder, verbose, segment_dataset:bo
     if verbose >= 1:
         print(f'Training data includes {data.shape[1]} features across {data.shape[0]} samples.')
 
-    # Identify categorical features (CatBoost handles these natively)
-    categorical_features = data.select_dtypes(include=['object']).columns.tolist()
-    if verbose >= 1:
-        print(f'Categorical features detected: {categorical_features}')
+    for i in range(2):
+        # Identify categorical features (CatBoost handles these natively)
+        categorical_features = data.select_dtypes(include=['object', 'category']).columns.tolist()
+        if verbose >= 1:
+            print(f'Categorical features detected: {categorical_features}')
 
-    # Convert categorical features to string due to CatBoost requirements
-    for col in categorical_features:
-        data[col] = data[col].astype(str)
+        # Convert categorical features to string due to CatBoost requirements
+        for col in categorical_features:
+            data[col] = data[col].astype(str)
 
-    # Define CatBoost classifier parameters
-    training_verbosity = verbose * 100 if verbose else 0
-    model = CatBoostClassifier(
-        iterations=1000,                        # Number of iterations
-        depth=6,                                # Depth of each tree to prevent overfitting
-        learning_rate=0.05,                     # Step size of udpates
-        loss_function='Logloss',                # Binary classification loss (Y/N in predicting mortality)
-        eval_metric='AUC',                      # Evaluation on Area Under Curve
-        cat_features=categorical_features,      # Identify the categorical features
-        verbose=training_verbosity,             # Training progress output per X iterations
-        random_seed=27                          # Seed to ensure reproducibility
-    )
+        # Define CatBoost classifier parameters
+        training_verbosity = 100 if verbose else 0
+        model = CatBoostClassifier(
+            iterations=1000,                        # Number of iterations
+            depth=6,                                # Depth of each tree to prevent overfitting
+            learning_rate=0.05,                     # Step size of udpates
+            loss_function='Logloss',                # Binary classification loss (Y/N in predicting mortality)
+            eval_metric='AUC',                      # Evaluation on Area Under Curve
+            cat_features=categorical_features,      # Identify the categorical features
+            verbose=training_verbosity,             # Training progress output per X iterations
+            random_seed=27                          # Seed to ensure reproducibility
+        )
 
-    if verbose >= 1:
-        print('Training the CatBoost model...')
+        if verbose >= 1:
+            print('Training the CatBoost model...')
 
-    model.fit(data, label, cat_features=categorical_features, verbose=training_verbosity)
+        model.fit(data, label, cat_features=categorical_features, verbose=training_verbosity)
+
+        if i == 0:
+            if verbose >= 1:
+                print('Extracting feature importance...')
+
+            importances = model.get_feature_importance(prettified=True)
+            important_features = importances[importances['Importances'] >= 1.0]['Feature Id'].tolist()
+
+            if verbose >= 1:
+                print(f'Identified {len(important_features)} important features (>=1.0). Retraining model.')
+
+            data = data[important_features]
+            features = data.columns
 
     save_challenge_model(model_folder, model, features, verbose)
 
@@ -109,7 +123,11 @@ def load_challenge_model(model_folder, verbose):
     if verbose >= 1:
         print(f'Loading model from {model_path}...')
 
-    model = load(model_path)
+    model_bundle = load(model_path)
+    # Unpack the model and selected features (embedded as custom metadata to the model) 
+    # Workaround to run_challenge_model not having access to the model_folder
+    model = model_bundle[0]
+    model._feature_names_used = model_bundle[1]
     return model
 # END def load_challenge_model()
 
@@ -119,16 +137,20 @@ def load_challenge_model(model_folder, verbose):
 # def run_challenge_model():
 def run_challenge_model(model, data_folder, verbose):
     # Load test data
-    patient_ids, data, _, features = __load_challenge_data(data_folder)
+    patient_ids, data, _, _ = __load_challenge_data(data_folder)
+    selected_features = getattr(model, '_feature_names_used', None)
+    if selected_features is None:
+        raise RuntimeError('Model does not contain embedded features data.')
+
+    data = data[selected_features]
 
     if verbose >= 1:
         print(f'Running inference on {data.shape[0]} samples, {data.shape[1]} features.')
 
     # Categorical features must match training format
-    categorical_features = data.select_dtypes(include=['object']).columns.tolist()
+    categorical_features = data.select_dtypes(include=['object', 'category']).columns.tolist()
     for col in categorical_features:
         data[col] = data[col].astype(str)
-
 
     if verbose >= 1:
         print(f'Categorical features detected: {categorical_features}')
@@ -169,7 +191,7 @@ def save_challenge_model(model_folder, model, features, verbose):
 
     # Save the trained model
     try:
-        dump(model, path.join(model_folder, 'catboost_model.pkl'))
+        dump((model, list(features)), path.join(model_folder, 'catboost_model.pkl'))
         with open(path.join(model_folder, 'selected_variables.txt'), 'w') as f:
             for feature in features:
                 f.write(f'{feature}\n')
