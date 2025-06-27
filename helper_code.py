@@ -188,7 +188,7 @@ def read_selected_variables(model, model_folder):
         if model is not None and "selected_variables" in model:
             return model["selected_variables"]
     except TypeError:
-        print("Warning: Model does not have 'selected_variables' key or is not iterable. Attempting to read from file.")
+        print("Warning: Model does not have 'selected_variables' key. Attempting to read from file.")
     
     # Otherwise, try to read from the file.
     file_path = os.path.join(model_folder, 'selected_variables.txt')
