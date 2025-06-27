@@ -8,6 +8,7 @@ scripts/
 catboost_info/
 project_files/
 psenv/
+optimization.py
 
 ### Linux ###
 *~

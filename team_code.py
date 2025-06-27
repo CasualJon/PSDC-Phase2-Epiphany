@@ -74,7 +74,7 @@ def train_challenge_model(data_folder, model_folder, verbose, segment_dataset:bo
         training_verbosity = 100 if verbose else 0
         model = CatBoostClassifier(
             iterations=1000,                        # Number of iterations
-            depth=6,                                # Depth of each tree to prevent overfitting
+            depth=5,                                # Depth of each tree to prevent overfitting
             learning_rate=0.05,                     # Step size of udpates
             loss_function='Logloss',                # Binary classification loss (Y/N in predicting mortality)
             eval_metric='AUC',                      # Evaluation on Area Under Curve
@@ -93,7 +93,7 @@ def train_challenge_model(data_folder, model_folder, verbose, segment_dataset:bo
                 print('Extracting feature importance...')
 
             importances = model.get_feature_importance(prettified=True)
-            important_features = importances[importances['Importances'] >= 1.0]['Feature Id'].tolist()
+            important_features = importances[importances['Importances'] >= 0.065]['Feature Id'].tolist()
 
             if verbose >= 1:
                 print(f'Identified {len(important_features)} important features (>=1.0). Retraining model.')
@@ -159,8 +159,16 @@ def run_challenge_model(model, data_folder, verbose):
     # Extract probability of class 1 (mortality)
     prediction_probabilities = model.predict_proba(data)[:, 1]
 
+    try:
+        with open('threshold.txt', 'r') as f:
+            threshold = float(f.read().strip())
+    except Exception as e:
+        if verbose >= 1:
+            print(f'Warning: threshold.txt not found or invalid. Using default threshold 0.5. Error: {e}')
+        threshold = 0.5
+
     # Threshold at 0.5 for binary classification
-    prediction_binary = (prediction_probabilities >= 0.5).astype(int)
+    prediction_binary = (prediction_probabilities >= threshold).astype(int)
 
     if verbose >= 1:
         print('Predictions completed.')
