@@ -48,9 +48,7 @@ def __load_challenge_data(data_folder):
 # Train your model.
 #
 # def train_challenge_model():
-# NOTE: Adding the defaulted argument segment_dataset:bool=False to allow for segmenting the dataset in development training wile
-# allowing for full dataset training during final evaluation
-def train_challenge_model(data_folder, model_folder, verbose, segment_dataset:bool=False) -> None:
+def train_challenge_model(data_folder, model_folder, verbose) -> None:
     # Find the Challenge data
     if verbose >= 1:
         print('Extracting features and labels from the Challenge data...')
@@ -73,8 +71,8 @@ def train_challenge_model(data_folder, model_folder, verbose, segment_dataset:bo
         # Define CatBoost classifier parameters
         training_verbosity = 100 if verbose else 0
         model = CatBoostClassifier(
-            iterations=1000,                        # Number of iterations
-            depth=5,                                # Depth of each tree to prevent overfitting
+            iterations=600,                        # Number of iterations - Tuning identified 600
+            depth=6,                                # Depth of each tree to prevent overfitting - Tuning identified 6
             learning_rate=0.05,                     # Step size of udpates
             loss_function='Logloss',                # Binary classification loss (Y/N in predicting mortality)
             eval_metric='AUC',                      # Evaluation on Area Under Curve
@@ -93,10 +91,11 @@ def train_challenge_model(data_folder, model_folder, verbose, segment_dataset:bo
                 print('Extracting feature importance...')
 
             importances = model.get_feature_importance(prettified=True)
-            important_features = importances[importances['Importances'] >= 0.065]['Feature Id'].tolist()
+            # Training tuning identified that features with importance >= 0.5 achieve best results
+            important_features = importances[importances['Importances'] >= 0.5]['Feature Id'].tolist()
 
             if verbose >= 1:
-                print(f'Identified {len(important_features)} important features (>=1.0). Retraining model.')
+                print(f'Identified {len(important_features)} important features (>=.05). Retraining model.')
 
             data = data[important_features]
             features = data.columns
