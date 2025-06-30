@@ -78,7 +78,8 @@ def train_challenge_model(data_folder, model_folder, verbose) -> None:
             eval_metric='AUC',                      # Evaluation on Area Under Curve
             cat_features=categorical_features,      # Identify the categorical features
             verbose=training_verbosity,             # Training progress output per X iterations
-            random_seed=27                          # Seed to ensure reproducibility
+            task_type='CPU',                        # Use CPU for training
+            random_seed=27,                         # Seed to ensure reproducibility
         )
 
         if verbose >= 1:

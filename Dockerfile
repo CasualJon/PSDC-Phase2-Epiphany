@@ -7,9 +7,8 @@ WORKDIR /challenge
 
 ## Install your dependencies here using apt install, etc.
 RUN apt-get update && apt-get install --no-install-recommends -y \
-    gcc \
-    g++ \
-    make \
+    build-essential \
+    libopenblas-dev \
     libgomp1 \
     && apt-get upgrade -y \
     && rm -rf /var/lib/apt/lists/*
@@ -18,4 +17,4 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 RUN pip install --upgrade pip
 
 ## Include the following line if you have a requirements.txt file.
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
