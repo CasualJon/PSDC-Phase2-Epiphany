@@ -71,7 +71,7 @@ def train_challenge_model(data_folder, model_folder, verbose) -> None:
         # Define CatBoost classifier parameters
         training_verbosity = 100 if verbose else 0
         model = CatBoostClassifier(
-            iterations=600,                         # Number of iterations - Debian Tuning identified 1200
+            iterations=1200,                        # Number of iterations - Debian Tuning identified 1200
             depth=6,                                # Depth of each tree to prevent overfitting - Debian Tuning identified 6
             learning_rate=0.05,                     # Step size of udpates
             loss_function='Logloss',                # Binary classification loss (Y/N in predicting mortality)
