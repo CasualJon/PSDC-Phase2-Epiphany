@@ -32,14 +32,15 @@ from joblib import dump, load
 def __load_challenge_data(data_folder):
     data = pd.read_csv(data_folder)
 
-    label = data['inhospital_mortality']
-    patient_ids = data['studyid_adm']
+    label = data['inhospital_mortality'] if 'inhospital_mortality' in data.columns else pd.NA
+    patient_ids = data['studyid_adm'] if 'studyid_adm' in data.columns else pd.NA
 
-    remove_features = ['studyid_adm', 'inhospital_mortality'] + [f'admitabx_adm___{i}' for i in range(1, 22)]
+    remove_features =  [
+        feature for feature in ['studyid_adm', 'inhospital_mortality'] + [f'admitabx_adm___{i}' for i in range(1, 22)] if feature in data.columns
+    ]
     data = data.drop(remove_features, axis=1)
 
     features = data.columns
-    
     return patient_ids, data, label, features
 # END def __load_challenge_data():
 
