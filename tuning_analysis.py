@@ -71,6 +71,7 @@ for line in lines:
                 'Iterations': current_iterations,
                 'Depth': current_depth,
                 'Importance': current_importance,
+                'Learning Rate': current_learning_rate,
                 'Threshold': threshold,
                 'Sensitivity': sensitivity,
                 'Specificity': specificity,

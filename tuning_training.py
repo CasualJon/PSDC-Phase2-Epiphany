@@ -42,8 +42,8 @@ if __name__ == '__main__':
                     print(f'Training model with iters={iters}, depth={depth}, importance={importance}, learning_rate={learning_rate}...')
                     train_challenge_model(data_folder, model_folder, verbose, iters, depth, importance, learning_rate)
                     run_model(model_folder, data_folder, output_folder, allow_failures, verbose)
-                    optimization_run = optimize_threshold_eval(iters, depth, importance)
-                    with open(f'project_files/optimization_results_{timestamp}.txt', 'a') as f:
+                    optimization_run = optimize_threshold_eval(iters, depth, importance, learning_rate)
+                    with open(f'test_outputs/optimization_results_{timestamp}.txt', 'a') as f:
                         f.write(f'Results for iters={iters}, depth={depth}, importance={importance}, learning_rate={learning_rate}:\n')
                         f.write(optimization_run + '\n\n')
 
