@@ -72,8 +72,8 @@ def train_challenge_model(data_folder, model_folder, verbose) -> None:
         # Define CatBoost classifier parameters
         training_verbosity = 100 if verbose else 0
         model = CatBoostClassifier(
-            iterations=1200,                        # Number of iterations - Debian Tuning identified 1200
-            depth=6,                                # Depth of each tree to prevent overfitting - Debian Tuning identified 6
+            iterations=700,                         # Number of iterations
+            depth=5,                                # Depth of each tree to prevent overfitting
             learning_rate=0.05,                     # Step size of udpates
             loss_function='Logloss',                # Binary classification loss (Y/N in predicting mortality)
             eval_metric='AUC',                      # Evaluation on Area Under Curve
@@ -93,11 +93,11 @@ def train_challenge_model(data_folder, model_folder, verbose) -> None:
                 print('Extracting feature importance...')
 
             importances = model.get_feature_importance(prettified=True)
-            # Debian Training tuning identified that features with importance >= 0.75 achieve best results
-            important_features = importances[importances['Importances'] >= 0.75]['Feature Id'].tolist()
+            # Debian Training tuning identified that features with importance >= 0.4 achieve best results
+            important_features = importances[importances['Importances'] >= 0.4]['Feature Id'].tolist()
 
             if verbose >= 1:
-                print(f'Identified {len(important_features)} important features (>=.75). Retraining model.')
+                print(f'Identified {len(important_features)} important features (>=0.4). Retraining model.')
 
             data = data[important_features]
             features = data.columns
