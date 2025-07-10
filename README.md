@@ -1,6 +1,6 @@
 # PSDC-Phase2-Ephipany
 
-Submission for Phase 2 of the 2024 Pediatric Sepsis Data Challenge. 
+Second submission for Phase 2 of the 2024 Pediatric Sepsis Data Challenge. 
 
 ## Team Members
  - Jon Cyrus
