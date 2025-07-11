@@ -165,8 +165,8 @@ def run_challenge_model(model, data_folder, verbose):
             threshold = float(f.read().strip())
     except Exception as e:
         if verbose >= 1:
-            print(f'Warning: threshold.txt not found or invalid. Using default threshold 0.003943. Error: {e}')
-        threshold = 0.003943
+            print(f'Warning: threshold.txt not found or invalid. Using default threshold 0.003937. Error: {e}')
+        threshold = 0.003937
 
     # Threshold at 0.5 for binary classification
     prediction_binary = (prediction_probabilities >= threshold).astype(int)
